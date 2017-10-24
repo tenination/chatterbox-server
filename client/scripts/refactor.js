@@ -22,7 +22,7 @@
 
 app = {
 
-  server: 'http://parse.CAMPUS.hackreactor.com/chatterbox/classes/messages',
+  server: 'http://localhost:3000/classes/messages',
 
   init: function() {
     // Get username

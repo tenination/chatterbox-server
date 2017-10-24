@@ -115,19 +115,5 @@ describe('Node Server Request Listener Function', function() {
         expect(res._responseCode).to.equal(404);
       });
   });
-  
-  it('handler should be a function', function() {
-    expect(typeof handler).to.equal('object');
-  });
-  
-  it('requestHandler be a function', function() {
-    expect(typeof handler.requestHandler).to.equal('function');
-  });
-  
-  it('stubs should be a function', function() {
-    expect(typeof stubs).to.equal('object');
-  });
-  
-  
 
 });

@@ -11,7 +11,9 @@ this file and include it in basic-server.js so that it actually works.
 *Hint* Check out the node module documentation at http://nodejs.org/api/modules.html.
 
 **************************************************************/
-var database = {results: []};
+var qs = require('qs');
+var idCounter = 2
+var database = {results: [{objectId: 1, username: 'Tim', text: 'Hello', roomname: 'lobby'}]};
 var requestHandler = function(request, response) {
   // Request and Response come from node's http module.
   //
@@ -45,6 +47,7 @@ var requestHandler = function(request, response) {
   if (request.method === 'GET' && request.url === '/classes/messages') {
     headers['Content-Type'] = 'application/json';
     response.writeHead(200, headers);
+    console.log('sending back messages');
     response.end(JSON.stringify(database)); //reference some local variable object that contains results array
   } else if (request.method === 'POST' && request.url === '/classes/messages') {
     headers['Content-Type'] = 'text/plain';
@@ -55,14 +58,20 @@ var requestHandler = function(request, response) {
       body += chunk;
     });
     request.on('end', function () {
-      console.log('---------console.log------------>', database)
+      console.log('---------console.log------------>', database, qs.parse(body));
       //response.writeHead(200);
-      database.results.push(JSON.parse(body));
+      var newMessage = qs.parse(body);
+      newMessage.objectId = idCounter;
+      idCounter++;
+      database.results.push(newMessage);
       response.end(JSON.stringify(database.results));
     });
     
     //database.results.push(message);
     response.end('Message has been created', body); //reference some local variable object that contains results array
+  } else if (request.method === 'OPTIONS' && request.url === '/classes/messages') {
+    response.writeHead(200, headers);  
+    response.end();
   } else {
     headers['Content-Type'] = 'text/plain';
     response.writeHead(404, headers);
