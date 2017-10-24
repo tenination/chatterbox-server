@@ -11,7 +11,7 @@ this file and include it in basic-server.js so that it actually works.
 *Hint* Check out the node module documentation at http://nodejs.org/api/modules.html.
 
 **************************************************************/
-
+var database = {results: []};
 var requestHandler = function(request, response) {
   // Request and Response come from node's http module.
   //
@@ -27,7 +27,8 @@ var requestHandler = function(request, response) {
   // Adding more logging to your server can be an easy way to get passive
   // debugging help, but you should always be careful about leaving stray
   // console.logs in your code.
-  console.log('Serving request type ' + request.method + ' for url ' + request.url);
+  
+  console.log('Serving request type ' + request.method + ' for url ' + request.url );
 
   // The outgoing status.
   var statusCode = 200;
@@ -39,11 +40,38 @@ var requestHandler = function(request, response) {
   //
   // You will need to change this if you are sending something
   // other than plain text, like JSON or HTML.
-  headers['Content-Type'] = 'text/plain';
-
+  
+  
+  if (request.method === 'GET' && request.url === '/classes/messages') {
+    headers['Content-Type'] = 'application/json';
+    response.writeHead(200, headers);
+    response.end(JSON.stringify(database)); //reference some local variable object that contains results array
+  } else if (request.method === 'POST' && request.url === '/classes/messages') {
+    headers['Content-Type'] = 'text/plain';
+    response.writeHead(201, headers);
+    
+    var body = "";
+    request.on('data', function(chunk) {
+      body += chunk;
+    });
+    request.on('end', function () {
+      console.log('---------console.log------------>', database)
+      //response.writeHead(200);
+      database.results.push(JSON.parse(body));
+      response.end(JSON.stringify(database.results));
+    });
+    
+    //database.results.push(message);
+    response.end('Message has been created', body); //reference some local variable object that contains results array
+  } else {
+    headers['Content-Type'] = 'text/plain';
+    response.writeHead(404, headers);
+    response.end('404 Error'); //reference some local variable object 
+  }
+  
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
-  response.writeHead(statusCode, headers);
+  //response.writeHead(statusCode, headers);
 
   // Make sure to always call response.end() - Node may not send
   // anything back to the client until you do. The string you pass to
@@ -52,8 +80,12 @@ var requestHandler = function(request, response) {
   //
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
-  response.end('Hello, World!');
+  // response.end('<h1>Hey Joshis awesome</h1>');
+  // console.log('RESPONSE IS EQUAL TO', response);
 };
+
+
+
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).
 // This code allows this server to talk to websites that
@@ -70,4 +102,4 @@ var defaultCorsHeaders = {
   'access-control-allow-headers': 'content-type, accept',
   'access-control-max-age': 10 // Seconds.
 };
-
+exports.requestHandler = requestHandler;
